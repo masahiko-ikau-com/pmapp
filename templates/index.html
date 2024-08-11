@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>pmapp</title>
+</head>
+<body>
+    <div class="container">
+        <h2>ビジコン コンシューマ向けpmapp POC</h2>
+        <p>これはやりたいプロジェクトのWBSを自動で生成するサービスのサンプルです。</p>
+        <div class="form-group">
+            <h3>やりたい事を記載してください</h3>
+            <form method="post" action="/">
+                <input type="text" name="field" class="form-control">
+                <input type="submit" value="GO">
+            </form>
+        </div>
+        <br>
+
+        <ul class="list-group">
+            {% for item in data %}
+                {% if item.hierarchy == 1 %}
+                    <li class="list-group-item list-group-item-action bg-primary text-white font-weight-bold">{{item.taskname}} / {{item.dateRequired}} 人日</li>
+                {% elif item.hierarchy == 2 %}
+                    <li class="list-group-item list-group-item-action bg-secondary text-white font-weight-bold">{{item.taskname}} / {{item.dateRequired}} 人日</li>
+                {% else %}
+                    <li class="list-group-item list-group-item-action">{{item.taskname}} / {{item.dateRequired}} 人日</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
