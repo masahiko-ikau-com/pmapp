@@ -4,8 +4,8 @@ pmappのPOC用アプリ。AIでWBSを自動で書かせる目的で利用して�
 ## 環境構築
 - モジュールのインストール
 ```
-py -m pip openai
-py -m pip Flask
+py -m pip install openai
+py -m pip install Flask
 ```
 
 - 以下の環境変数を設定
