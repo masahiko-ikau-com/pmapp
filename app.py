@@ -24,24 +24,54 @@ def index():
 def form():
     project = request.form['field']
     # debug_modeをFalseにするとChatGPTに問い合わせます。料金がかかるので必要ないときはTrueにしておいてください。
-    wbslist = getWBS(project,debug_mode=False)
+    wbslist = getWBS(project,debug_mode=True)
     return render_template('index.html' \
                            , data=wbslist)
+
+# "/description"にアクセスした際に実行される処理
+@app.route('/description', methods=['GET'])
+def description():
+    return render_template('description.html')
 #---------------------------------------------------------------------------------------------------- 
 
 
 def getWBS(project, debug_mode=True ):
     global previous_response #面倒なのでglobal変数を利用。セッション変数にホントはすべき
 
-    # テスト用のサンプルデータ。
-    todo1 = {"taskname": "プロジェクト計画" , "hierarchy" : 1 , "dateRequired" : 0 }
-    todo2 = {"taskname" : "スケジュール作成" , "hierarchy" : 2 , "dateRequired" : 4 }
-    todo3 = {"taskname" : "リソース配分" , "hierarchy" : 2 , "dateRequired" : 2 }
-    todo4 = {"taskname" : "要件定義" , "hierarchy" : 1 , "dateRequired" : 0 }
-    todo5 = {"taskname" : "ユーザ要件収集" , "hierarchy" : 2 , "dateRequired" : 2 }
-    todo6 = {"taskname" : "システム要件定義" , "hierarchy" : 3 , "dateRequired" : 4 }
-
-    wbslist = [todo1,todo2,todo3,todo4,todo5,todo6]
+   # テスト用のデータ
+    response = '''
+[WBS]"taskname":"キャンペーン計画作成","hierarchy":1,"dateRequired":4
+[WBS]"taskname":"市場調査","hierarchy":2,"dateRequired":3
+[WBS]"taskname":"競合分析","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"顧客ニーズ調査","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"市場トレンド調査","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"ターゲットオーディエンス設定","hierarchy":2,"dateRequired":3
+[WBS]"taskname":"デモグラフィック分析","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"ペルソナ作成","hierarchy":3,"dateRequired":2
+[WBS]"taskname":"予算策定","hierarchy":2,"dateRequired":2
+[WBS]"taskname":"コスト見積もり","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"予算配分計画","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"キャンペーンコンテンツ作成","hierarchy":2,"dateRequired":5
+[WBS]"taskname":"スローガン作成","hierarchy":3,"dateRequired":2
+[WBS]"taskname":"ビジュアルデザイン作成","hierarchy":3,"dateRequired":3
+[WBS]"taskname":"メディアプランニング","hierarchy":2,"dateRequired":4
+[WBS]"taskname":"メディア選定","hierarchy":3,"dateRequired":2
+[WBS]"taskname":"スケジュール作成","hierarchy":3,"dateRequired":2
+[WBS]"taskname":"広告素材作成","hierarchy":2,"dateRequired":7
+[WBS]"taskname":"グラフィックデザイン作成","hierarchy":3,"dateRequired":4
+[WBS]"taskname":"コピーライティング","hierarchy":3,"dateRequired":3
+[WBS]"taskname":"メディアバイイング","hierarchy":2,"dateRequired":3
+[WBS]"taskname":"交渉と契約","hierarchy":3,"dateRequired":2
+[WBS]"taskname":"メディア掲載","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"キャンペーン実行","hierarchy":2,"dateRequired":10
+[WBS]"taskname":"キャンペーンローンチ","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"進捗管理","hierarchy":3,"dateRequired":7
+[WBS]"taskname":"効果測定","hierarchy":3,"dateRequired":2
+[WBS]"taskname":"結果分析とレポート作成","hierarchy":2,"dateRequired":3
+[WBS]"taskname":"データ集計","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"効果分析","hierarchy":3,"dateRequired":1
+[WBS]"taskname":"最終レポート作成","hierarchy":3,"dateRequired":1
+'''
 
     # プロンプト
     prompt = project 
@@ -66,19 +96,16 @@ def getWBS(project, debug_mode=True ):
         previous_response = response
         print(response)
 
-        wbslist = []
-
-        # 正規表現パターンを作成
-        pattern = r'\[WBS\]"taskname":"(?P<taskname>.*?)","hierarchy":(?P<hierarchy>\d+),"dateRequired":(?P<dateRequired>\d+)'
-
-        for line in response.strip().split('\n'):
-            match = re.match(pattern, line)
-            if match:
-                wbs_dict = match.groupdict()  # マッチした部分を辞書に変換
-                wbs_dict['hierarchy'] = int(wbs_dict['hierarchy'])  # hierarchyを整数に変換
-                wbs_dict['dateRequired'] = int(wbs_dict['dateRequired'])  # dateRequiredを整数に変換
-                wbslist.append(wbs_dict)  # リストに追加
-
+    wbslist = []
+    # 正規表現パターンを作成
+    pattern = r'\[WBS\]"taskname":"(?P<taskname>.*?)","hierarchy":(?P<hierarchy>\d+),"dateRequired":(?P<dateRequired>\d+)'
+    for line in response.strip().split('\n'):
+        match = re.match(pattern, line)
+        if match:
+            wbs_dict = match.groupdict()  # マッチした部分を辞書に変換
+            wbs_dict['hierarchy'] = int(wbs_dict['hierarchy'])  # hierarchyを整数に変換
+            wbs_dict['dateRequired'] = int(wbs_dict['dateRequired'])  # dateRequiredを整数に変換
+            wbslist.append(wbs_dict)  # リストに追加
         for wbs in wbslist:
             print(wbs)
     return wbslist

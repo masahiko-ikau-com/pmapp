@@ -24,9 +24,9 @@
                 {% if item.hierarchy == 1 %}
                     <li class="list-group-item list-group-item-action bg-primary text-white font-weight-bold">{{item.taskname}} / {{item.dateRequired}} 人日</li>
                 {% elif item.hierarchy == 2 %}
-                    <li class="list-group-item list-group-item-action bg-secondary text-white font-weight-bold">{{item.taskname}} / {{item.dateRequired}} 人日</li>
+                    <li class="list-group-item list-group-item-action bg-secondary text-white font-weight-bold"><a class=text-white href=/description>{{item.taskname}}</a> / {{item.dateRequired}} 人日</li>
                 {% else %}
-                    <li class="list-group-item list-group-item-action">{{item.taskname}} / {{item.dateRequired}} 人日</li>
+                    <li class="list-group-item list-group-item-action"><a class=text-black href=/description>{{item.taskname}}</a> / {{item.dateRequired}} 人日</li>
                 {% endif %}
             {% endfor %}
         </ul>
