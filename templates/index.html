@@ -1,35 +1,64 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="h-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <title>pmapp</title>
 </head>
-<body>
-    <div class="container">
-        <h2>ビジコン コンシューマ向けpmapp POC</h2>
-        <p>これはやりたいプロジェクトのWBSを自動で生成するサービスのサンプルです。</p>
-        <div class="form-group">
-            <h3>やりたい事を記載してください</h3>
-            <form method="post" action="/">
-                <input type="text" name="field" class="form-control">
-                <input type="submit" value="GO">
-            </form>
+<body class="h-100">
+    <div class="container h-100">
+        <div class="row">
+           <div class="col-md-12">
+                <h2>ビジコン コンシューマ向けpmapp POC</h2>
+                <p>これはやりたいプロジェクトのWBSを自動で生成するサービスのサンプルです。</p>
+            </div>
         </div>
-        <br>
+        <div class="row h-75">
+            <div class="col-md-3 d-flex flex-column h-100">
+                <div class="row overflow-auto">
+                    <ul class="list-unstyled">
+                        {% for message in chat_messages %}
+                            {% if message.sender == 'user' %}
+                                <li class="d-flex justify-content-end mb-4">
+                                    <div class="p-3 bg-primary text-white rounded-3">
+                                        {{ message.message }}
+                                    </div>
+                                </li>
+                            {% else %}
+                                <li class="d-flex justify-content-start mb-4">
+                                    <div class="p-3 bg-light rounded-3">
+                                        {{ message.message }}
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
 
-        <ul class="list-group">
-            {% for item in data %}
-                {% if item.hierarchy == 1 %}
-                    <li class="list-group-item list-group-item-action bg-primary text-white font-weight-bold">{{item.taskname}} / {{item.dateRequired}} 人日</li>
-                {% elif item.hierarchy == 2 %}
-                    <li class="list-group-item list-group-item-action bg-secondary text-white font-weight-bold"><a class=text-white href=/description>{{item.taskname}}</a> / {{item.dateRequired}} 人日</li>
-                {% else %}
-                    <li class="list-group-item list-group-item-action"><a class=text-black href=/description>{{item.taskname}}</a> / {{item.dateRequired}} 人日</li>
-                {% endif %}
-            {% endfor %}
-        </ul>
+                </div>
+                <div class="row h-25 mt-auto" >
+                    <div class="form-group">
+                        <form method="post" action="/">
+                            <input type="text" name="field" class="form-control">
+                            <input type="submit" value="GO">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9 h-100 overflow-auto">
+                <ul class="list-group">
+                    {% for item in data %}
+                        {% if item.hierarchy == 1 %}
+                            <li class="list-group-item list-group-item-action bg-primary text-white font-weight-bold">{{item.taskname}} / {{item.dateRequired}} 人日</li>
+                        {% elif item.hierarchy == 2 %}
+                            <li class="list-group-item list-group-item-action bg-secondary text-white font-weight-bold"><a class=text-white href=/description>{{item.taskname}}</a> / {{item.dateRequired}} 人日</li>
+                        {% else %}
+                            <li class="list-group-item list-group-item-action"><a class=text-black href=/description>{{item.taskname}}</a> / {{item.dateRequired}} 人日</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
 </body>
 </html>

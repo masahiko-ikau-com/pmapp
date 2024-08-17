@@ -10,6 +10,7 @@ import re
 
 # 過去処理の記録 面倒なのでglobal変数を利用。セッション変数にホントはすべき
 previous_response = '' 
+chat_history = []
 
 # Webページからのアクセス時の動作を制御 ----------------------------------------------------------------
 app = Flask(__name__)
@@ -22,16 +23,28 @@ def index():
 # ボタンを押した際に実行される処理
 @app.route('/', methods=['POST'])
 def form():
-    project = request.form['field']
+    prompt = request.form['field']
+
+    #promptを保存
+    save_message(prompt, is_user=True)
     # debug_modeをFalseにするとChatGPTに問い合わせます。料金がかかるので必要ないときはTrueにしておいてください。
-    wbslist = getWBS(project,debug_mode=True)
+    wbslist = getWBS(prompt,debug_mode=True)
+
+    # チャット履歴を取得
+    chat_messages = get_messages(5)
     return render_template('index.html' \
-                           , data=wbslist)
+                           , data=wbslist, chat_messages=chat_messages)
 
 # "/description"にアクセスした際に実行される処理
 @app.route('/description', methods=['GET'])
 def description():
     return render_template('description.html')
+
+# 対象のページが見つからない場合の処理
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
+
 #---------------------------------------------------------------------------------------------------- 
 
 
@@ -40,6 +53,7 @@ def getWBS(project, debug_mode=True ):
 
    # テスト用のデータ
     response = '''
+了解しました。キャンペーン計画に基づいたWBSを以下に示します。
 [WBS]"taskname":"キャンペーン計画作成","hierarchy":1,"dateRequired":4
 [WBS]"taskname":"市場調査","hierarchy":2,"dateRequired":3
 [WBS]"taskname":"競合分析","hierarchy":3,"dateRequired":1
@@ -78,11 +92,12 @@ def getWBS(project, debug_mode=True ):
 
     # どのような事をしたいのかの説明 ★特にここをチューニングすること
     system_context = '''
-- 指定されたプロジェクトのWBSを出力してください
+- 指定されたプロジェクトのWBSをフォーマットに従い必要に応じて出力してください
 - project managementのプロフェッショナルとして詳細なWBSを洗い出して下さい
 - ビジネスの文脈で利用するものです。
 - 以下のフォーマットに従い、リストとして表示してください。
 - "" や [] で囲まれたところは固定値です。変更しないように注意してください。
+- 一度出力したWBSは毎回出力してください。話の内容にしたがってアップデートしてほしいです。
 
 #format 
 [WBS]"taskname":"テスト","hierarchy":1,"dateRequired":4
@@ -97,6 +112,7 @@ def getWBS(project, debug_mode=True ):
         print(response)
 
     wbslist = []
+    message = ''
     # 正規表現パターンを作成
     pattern = r'\[WBS\]"taskname":"(?P<taskname>.*?)","hierarchy":(?P<hierarchy>\d+),"dateRequired":(?P<dateRequired>\d+)'
     for line in response.strip().split('\n'):
@@ -106,10 +122,28 @@ def getWBS(project, debug_mode=True ):
             wbs_dict['hierarchy'] = int(wbs_dict['hierarchy'])  # hierarchyを整数に変換
             wbs_dict['dateRequired'] = int(wbs_dict['dateRequired'])  # dateRequiredを整数に変換
             wbslist.append(wbs_dict)  # リストに追加
-        for wbs in wbslist:
-            print(wbs)
+        else:
+            # マッチしなかった場合は地のメッセージとして格納
+            message = message + line
+    # aiのメッセージを保存
+    save_message(message,is_user=False)
+    for wbs in wbslist:
+        print(wbs)
     return wbslist
 
+# メッセージを保存する関数
+def save_message(message: str, is_user: bool):
+    global chat_history
+    # 話者を決定
+    sender = "user" if is_user else "ai"
+    # メッセージを辞書形式で追加
+    chat_history.append({"message": message, "sender": sender})
+
+
+# メッセージを取得件数を指定して取得する関数
+def get_messages(n: int):
+    global chat_history
+    return chat_history[-n:]
 
 def get_chatgpt_response(prompt,system_context,user_context):
     client = OpenAI()
