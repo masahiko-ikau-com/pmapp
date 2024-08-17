@@ -32,6 +32,13 @@ def form():
 @app.route('/description', methods=['GET'])
 def description():
     return render_template('description.html')
+
+# 対象のページが見つからない場合の処理
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
+
+
 #---------------------------------------------------------------------------------------------------- 
 
 
