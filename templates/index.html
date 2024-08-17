@@ -17,26 +17,22 @@
         <div class="row h-75">
             <div class="col-md-3 d-flex flex-column h-100">
                 <div class="row overflow-auto">
-
                     <ul class="list-unstyled">
-                    <!-- 相手のメッセージ（左寄せ） -->
-                    <li class="d-flex justify-content-start mb-4">
-                        <div class="p-3 bg-light rounded-3">
-                        こんにちは！お元気ですか？
-                        </div>
-                    </li>
-                    <!-- 自分のメッセージ（右寄せ） -->
-                    <li class="d-flex justify-content-end mb-4">
-                        <div class="p-3 bg-primary text-white rounded-3">
-                        こんにちは！元気です。あなたは？
-                        </div>
-                    </li>
-                    <!-- 相手のメッセージ（左寄せ） -->
-                    <li class="d-flex justify-content-start mb-4">
-                        <div class="p-3 bg-light rounded-3">
-                        私も元気です！
-                        </div>
-                    </li>
+                        {% for message in chat_messages %}
+                            {% if message.sender == 'user' %}
+                                <li class="d-flex justify-content-end mb-4">
+                                    <div class="p-3 bg-primary text-white rounded-3">
+                                        {{ message.message }}
+                                    </div>
+                                </li>
+                            {% else %}
+                                <li class="d-flex justify-content-start mb-4">
+                                    <div class="p-3 bg-light rounded-3">
+                                        {{ message.message }}
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
                     </ul>
 
                 </div>
